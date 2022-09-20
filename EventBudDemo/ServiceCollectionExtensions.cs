@@ -38,6 +38,8 @@ namespace EventBudDemo
                 var factory = new ConnectionFactory()
                 {
                     HostName = options.HostName,
+                    UserName = "root",
+                    Password = "123456",
                     DispatchConsumersAsync = true
                 };
                 var myConnection = new RabbitMqConnection(factory);

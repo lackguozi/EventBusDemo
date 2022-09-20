@@ -56,7 +56,7 @@ namespace EventBudDemo
                     {
                         WriteIndented = true,
                     };
-                    body = JsonSerializer.SerializeToUtf8Bytes(eventName, eventName.GetType(), options);
+                    body = JsonSerializer.SerializeToUtf8Bytes(eventData, eventData.GetType(), options);
 
                 }
                 var properties = channel.CreateBasicProperties();
