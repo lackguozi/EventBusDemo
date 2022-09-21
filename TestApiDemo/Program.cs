@@ -1,3 +1,4 @@
+using EventBudDemo;
 using Microsoft.AspNetCore.Builder;
 
 namespace TestApiDemo
@@ -22,7 +23,7 @@ namespace TestApiDemo
             app.UseAuthorization();
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FileService.WebAPI v1"));
-
+            app.UseEventBus();
             app.MapControllers();
 
             app.Run();
