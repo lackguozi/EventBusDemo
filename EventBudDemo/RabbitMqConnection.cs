@@ -1,8 +1,11 @@
-﻿using RabbitMQ.Client;
+﻿using Polly;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,7 +33,18 @@ namespace EventBudDemo
         {
             lock (sync_lock)
             {
-                connection = connectionFactory.CreateConnection();
+                var policy = Policy.Handle<SocketException>()
+                    .Or<BrokerUnreachableException>()
+                    .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+                    {
+                        Console.WriteLine($"RabbitMQ Client could not connect after {time.TotalSeconds:n1}s ({ex.Message})");
+                    });
+                policy.ExecuteAsync(() =>
+                {
+                    connection = connectionFactory.CreateConnection();
+                    return Task.CompletedTask;
+                });
+                
                 if (IsConnected)
                 {
                     connection.ConnectionShutdown += OnConnectionShutdown;

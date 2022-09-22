@@ -9,6 +9,12 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Polly;
+using RabbitMQ.Client.Exceptions;
+using System.Net.Sockets;
+using System.Text.Json.Serialization;
+using System.Net.Http.Json;
+using Newtonsoft.Json;
 
 namespace EventBudDemo
 {
@@ -42,6 +48,12 @@ namespace EventBudDemo
             {
                 persistentConnection.TryConnect();
             }
+            var policy = Policy.Handle<BrokerUnreachableException>().Or<SocketException>()
+                .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+                {
+                    Console.WriteLine($"Could not publish event: {JsonConvert.SerializeObject(eventData)} after {time.TotalSeconds:n1}s ({ex.Message})");
+
+                });
             using(var channel = persistentConnection.CreateModel())
             {
                 channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct);
@@ -56,17 +68,22 @@ namespace EventBudDemo
                     {
                         WriteIndented = true,
                     };
-                    body = JsonSerializer.SerializeToUtf8Bytes(eventData, eventData.GetType(), options);
+                    body = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(eventData, eventData.GetType(), options);
 
                 }
-                var properties = channel.CreateBasicProperties();
-                properties.DeliveryMode = 2;
-                channel.BasicPublish(
-                    exchange: exchangeName,
-                    routingKey: eventName,
-                    mandatory: true,
-                    basicProperties:properties,
-                    body:body);
+                policy.ExecuteAsync(() =>
+                {
+                    var properties = channel.CreateBasicProperties();
+                    properties.DeliveryMode = 2;
+                    channel.BasicPublish(
+                        exchange: exchangeName,
+                        routingKey: eventName,
+                        mandatory: true,
+                        basicProperties: properties,
+                        body: body);
+                    return Task.CompletedTask;  
+                });
+                
 
             }
         }
