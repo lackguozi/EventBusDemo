@@ -35,14 +35,14 @@ namespace EventBudDemo
             {
                 var policy = Policy.Handle<SocketException>()
                     .Or<BrokerUnreachableException>()
-                    .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+                    .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
                     {
                         Console.WriteLine($"RabbitMQ Client could not connect after {time.TotalSeconds:n1}s ({ex.Message})");
                     });
-                policy.ExecuteAsync(() =>
+                policy.Execute(() =>
                 {
                     connection = connectionFactory.CreateConnection();
-                    return Task.CompletedTask;
+                    
                 });
                 
                 if (IsConnected)

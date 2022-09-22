@@ -49,7 +49,7 @@ namespace EventBudDemo
                 persistentConnection.TryConnect();
             }
             var policy = Policy.Handle<BrokerUnreachableException>().Or<SocketException>()
-                .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+                .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
                 {
                     Console.WriteLine($"Could not publish event: {JsonConvert.SerializeObject(eventData)} after {time.TotalSeconds:n1}s ({ex.Message})");
 
@@ -71,7 +71,7 @@ namespace EventBudDemo
                     body = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(eventData, eventData.GetType(), options);
 
                 }
-                policy.ExecuteAsync(() =>
+                policy.Execute(() =>
                 {
                     var properties = channel.CreateBasicProperties();
                     properties.DeliveryMode = 2;
@@ -81,7 +81,7 @@ namespace EventBudDemo
                         mandatory: true,
                         basicProperties: properties,
                         body: body);
-                    return Task.CompletedTask;  
+                    
                 });
                 
 
