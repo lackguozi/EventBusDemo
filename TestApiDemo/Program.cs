@@ -1,6 +1,7 @@
 using EventBudDemo;
 using Microsoft.AspNetCore.Builder;
 
+
 namespace TestApiDemo
 {
     public class Program
@@ -9,6 +10,11 @@ namespace TestApiDemo
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.ConfigureHttpService();
+            builder.ConfiguteAction(msg =>
+            {
+                msg.Name = "Ð¡Ã÷";
+                msg.Value = "ÄãºÃ";
+            });
             // Add services to the container.
             builder.ConfigureExtraServices();
             builder.Services.AddControllers();
@@ -36,10 +42,23 @@ namespace TestApiDemo
             var services = builder.Services;
             
             services.AddHttpClient<IHttpClientTest, HttpClientTest>();
-            //var httpTest = 
+             
+        }
+        public static void ConfiguteAction(this WebApplicationBuilder builder,Action<MsgOption> action)
+        {
+            var msg = new MsgOption();
+            action(msg);
+            builder.Services.Configure(action);
         }
 
     }
+    public class MsgOption
+    {
+        public string Name { get; set; }
+        public string Value { get; set; }
+    }
+
+
     public static class ApplicationBuilderExtensions
     {
         public static IApplicationBuilder UseCustomDefault(this IApplicationBuilder builder)
