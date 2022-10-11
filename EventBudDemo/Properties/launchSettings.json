@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "EventBudDemo": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:10988;http://localhost:10989"
+    }
+  }
+}

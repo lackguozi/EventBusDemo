@@ -1,0 +1,37 @@
+{
+  "GlobalConfiguration": {
+    "BaseUrl": ""
+  },
+  "Routes": [
+    {
+      //上游地址  也就是给我发过来的地址 模板
+      "UpstreamPathTemplate": "/Ocelot1/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      //下游地址 就是我要转发的地址的模板
+      "DownstreamPathTemplate": "/api/{url}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5255
+        }
+
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/Ocelot2/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+
+      "DownstreamPathTemplate": "/api/{url}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5291
+        }
+      ]
+    }
+
+
+  ]
+}
