@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventBudDemo\EventBudDemo.csproj" />
+    <ProjectReference Include="..\EventBusDemo - 副本\EventBus.csproj" />
     <ProjectReference Include="..\TestService\TestService.csproj" />
   </ItemGroup>
 
