@@ -1,5 +1,7 @@
 using EventBudDemo;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Polly;
 using TestService.Event;
 
 namespace TestApiDemo.Controllers
@@ -19,7 +21,7 @@ namespace TestApiDemo.Controllers
         {
             _logger = logger;
         }
-
+        [Authorize(Policy = "IntranetNeed")]
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {

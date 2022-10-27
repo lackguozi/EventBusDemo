@@ -1,6 +1,7 @@
 using EventBudDemo;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-
+using TestApiDemo.Authorization;
 
 namespace TestApiDemo
 {
@@ -22,10 +23,20 @@ namespace TestApiDemo
             {
                 c.SwaggerDoc("v1", new() { Title = "TestService.WebAPI", Version = "v1" });
             });
+            builder.Services.AddSingleton<IHttpContextAccessor,HttpContextAccessor>();
+            builder.Services.AddSingleton<IAuthorizationHandler, IntranetHandler>();
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("IntranetNeed", policy =>
+                {
+                    policy.Requirements.Add( new IntranetRequirement());
+                });
+            });
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             app.UseCustomDefault();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FileService.WebAPI v1"));
